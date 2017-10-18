@@ -64,6 +64,10 @@ def _is_long_mode_cpuid():
 
 
 def _intel(family, model):
+    cpu_64bit = 0
+    cpu_av x = 0
+    modelstr = ""
+    
     if family == 5:
         if model <= 2:
             modelstr = "pentium"
