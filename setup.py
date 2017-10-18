@@ -6,10 +6,10 @@
 
 from setuptools import setup
 
-__title__ = "cpuid-py"
+__title__ = "cpuid"
 __summary__ = "cpuid Pythonic API"
 __uri__ = "https://github.com/fpelliccioni/cpuid-py"
-__version__ = "0.0.1"
+__version__ = "0.0.2"
 __author__ = "Fernando Pelliccioni"
 __email__ = "fpelliccioni@gmail.com"
 __license__ = "MIT"
@@ -17,7 +17,7 @@ __copyright__ = "Copyright (c) 2017 Fernando Pelliccioni"
 
 
 install_requires = [
-    "cpuid-native >= 0.0.1",
+    "cpuid-native >= 0.0.2",
 ]
 
 setup(
