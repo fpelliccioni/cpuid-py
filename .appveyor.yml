@@ -1,0 +1,108 @@
+#
+# Copyright (c) 2017 Fernando Pelliccioni
+#
+
+
+# ------------------------------------------------------------------------------------------------------
+
+
+build: false
+
+environment:
+    # VS150COMNTOOLS: "C:\\Program Files (x86)\\Microsoft Visual Studio\\2017\\Community\\Common7\\Tools\\"
+
+    matrix:
+ 
+      - PYTHON: "C:\\Python27-x64"
+        PYTHON_VERSION: "2.7.13"
+        PYTHON_ARCH: "64"
+        # WINDOWS_SDK_VERSION: "v7.0"
+        WINDOWS_SDK_VERSION: "v7.1"
+        DISTRIBUTIONS: "sdist bdist_wheel"
+        APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
+  
+      # - PYTHON: "C:\\Python33-x64"
+      #   PYTHON_VERSION: "3.3.5"
+      #   PYTHON_ARCH: "64"
+      #   WINDOWS_SDK_VERSION: "v7.1"
+      #   DISTRIBUTIONS: "bdist_wheel"
+      #   APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
+  
+      - PYTHON: "C:\\Python34-x64"
+        PYTHON_VERSION: "3.4.4"
+        PYTHON_ARCH: "64"
+        WINDOWS_SDK_VERSION: "v7.1"
+        DISTRIBUTIONS: "bdist_wheel"
+        APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
+
+      - PYTHON: "C:\\Python35-x64"
+        PYTHON_VERSION: "3.5.3"
+        PYTHON_ARCH: "64"
+        WINDOWS_SDK_VERSION: "v7.1"
+        DISTRIBUTIONS: "bdist_wheel"
+        APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
+
+      - PYTHON: "C:\\Python36-x64"
+        PYTHON_VERSION: "3.6.1"
+        PYTHON_ARCH: "64"
+        WINDOWS_SDK_VERSION: "v7.1"
+        DISTRIBUTIONS: "bdist_wheel"
+        APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
+
+
+
+install:
+  - SET PATH=%PYTHON%;%PYTHON%\\Scripts;%PATH%
+  - SET VS90COMNTOOLS=%VS140COMNTOOLS%
+  - cd "c:\Users\appveyor\AppData\Local\Programs\Common\Microsoft\"
+  - ren "Visual C++ for Python" "Visual C++ for Python Do Not Use"
+  - cd "C:\Program Files (x86)\"
+  - ren "Microsoft Visual Studio 9.0" "Microsoft Visual Studio 9.0 Do Not Use"
+  # - cp "c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\include\stdint.h" "C:\Users\appveyor\AppData\Local\Programs\Common\Microsoft\Visual C++ for Python\9.0\VC\include\stdint.h"
+
+
+  # - set PATH=%PATH%;%PYTHON%/Scripts/
+  - "%PYTHON%\\Scripts\\pip.exe --version"
+  - "%PYTHON%\\Scripts\\pip.exe install --upgrade setuptools"
+  - "%PYTHON%\\python.exe -m pip install wheel"
+  - "%PYTHON%\\python.exe -m pip install twine"
+  - "%PYTHON%\\python.exe --version"
+  - "%PYTHON%\\python.exe -c \"import struct;print( 8 * struct.calcsize('P'))\""
+
+  - echo %APPVEYOR_REPO_BRANCH%
+
+  # Just for dev branch
+  - IF %APPVEYOR_REPO_BRANCH%==dev "%PYTHON%\\Scripts\\pip.exe" install --upgrade --index-url https://test.pypi.org/pypi/ cpuid-native
+  - IF "%APPVEYOR_REPO_BRANCH%"=="dev" (echo %APPVEYOR_REPO_BRANCH%)
+  - IF "%APPVEYOR_REPO_BRANCH%"=="dev" (echo "%APPVEYOR_REPO_BRANCH%")
+
+before_build:
+
+  # - call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars64.bat" amd64
+  - call "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat" amd64
+  # - IF "%PYTHON_ARCH%"=="64" (
+  #     call "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat" amd64
+  #   ) ELSE (
+  #     call "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat" x86
+  #   )
+
+
+# test_script:
+build_script:
+    - cd %APPVEYOR_BUILD_FOLDER% 
+    - pip install  -e .
+
+    - "%PYTHON%\\python.exe setup.py sdist"
+    - "%PYTHON%\\python.exe setup.py bdist_wheel --universal"
+
+    - IF "%APPVEYOR_REPO_BRANCH%"=="master" (
+        twine upload -u %PYPI_USER_NAME% -p %PYPI_PASSWORD% dist/* || true
+      ) ELSE (
+        twine upload -u %PYPI_USER_NAME% -p %PYPI_PASSWORD% --repository-url https://test.pypi.org/legacy/ dist/*  || true
+      )
+
+# ------------------------------------------------------------------------------------------------------
+
+
+
+
