@@ -185,7 +185,7 @@ def _intel(family, model):
         elif model == 0x55:
             cpu_64bit = 1
             cpu_avx=1
-            modelstr = "skylake"    # Skylake server */
+            modelstr = "skylake-avx512"    # Skylake server */
         elif model == 0x56:
             cpu_64bit = 1
             cpu_avx=1
