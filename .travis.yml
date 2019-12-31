@@ -105,6 +105,7 @@ script:
 
   - |
     if [[ "${TRAVIS_OS_NAME}" == "linux" ]]; then
+      less /proc/cpuinfo
       cd ${TRAVIS_BUILD_DIR}
       chmod a+x .travis/entrypoint.sh
       /usr/bin/docker run --rm -ti -e TRAVIS_PYTHON_VERSION=$TRAVIS_PYTHON_VERSION \
