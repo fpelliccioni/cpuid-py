@@ -7,8 +7,8 @@ cirrus_freebsd_clang_test_task:
     image: freebsd-12-0-release-amd64
     # freebsd-11-2-release-amd64
   env:
-    # # CONAN_GCC_VERSIONS: 9
-    # CONAN_CLANG_VERSIONS: "7.0, 6.0"
+    # CONAN_GCC_VERSIONS: 9
+    CONAN_CLANG_VERSIONS: "7.0, 6.0"
     # CONAN_REFERENCE: "gmp/6.1.2"
     # CONAN_USERNAME: "kth"
     # CONAN_LOGIN_USERNAME: "fpelliccioni"
