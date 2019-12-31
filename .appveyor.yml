@@ -68,6 +68,7 @@ install:
   - "%PYTHON%\\python.exe -m pip install twine"
   - "%PYTHON%\\python.exe --version"
   - "%PYTHON%\\python.exe -c \"import struct;print( 8 * struct.calcsize('P'))\""
+  - "%PYTHON%\\python.exe -c \"import cpuid; _, b, _, _ = cpuid.cpuid_count(7, 0); print((b >> 29) & 1)\""
 
   - echo %APPVEYOR_REPO_BRANCH%
 

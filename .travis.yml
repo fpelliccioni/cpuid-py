@@ -35,7 +35,7 @@ matrix:
         python: "2.7"
 
       - <<: *linux
-        env: UNIT_TESTS=true UPLOAD_PKG=true
+        env: UNIT_TESTS=true UPLOAD_PKG=false
         compiler: gcc
         python: "3.6"
 
@@ -99,6 +99,8 @@ script:
       fi
       pyenv activate conan
     fi
+
+  - python -c 'import cpuid; _, b, _, _ = cpuid.cpuid_count(7, 0); print((b >> 29) & 1)'
 
   - |
     if [[ "${TRAVIS_OS_NAME}" == "linux" ]]; then
