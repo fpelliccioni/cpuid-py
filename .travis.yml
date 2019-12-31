@@ -82,6 +82,7 @@ install:
   - |
     pip install wheel --upgrade
     pip install twine --upgrade
+    pip install cpuid --upgrade
 
 script:
 
