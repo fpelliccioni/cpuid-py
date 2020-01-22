@@ -98,6 +98,8 @@ build_script:
     - "%PYTHON%\\python.exe setup.py sdist"
     - "%PYTHON%\\python.exe setup.py bdist_wheel --universal"
 
+    # - twine check dist/*
+
     - IF "%APPVEYOR_REPO_BRANCH%"=="master" (
         twine upload --verbose -u %PYPI_USER_NAME% -p %PYPI_PASSWORD% dist/* || true
       ) ELSE (
