@@ -24,9 +24,12 @@ setup(
     name = __title__,
     version = __version__,
     description = __summary__,
-    long_description=open("./README.rst").read(),
-    long_description_content_type="text/x-rst",
-    # text/markdown
+    # long_description=open("./README.rst").read(),
+    # long_description_content_type="text/x-rst",
+
+    long_description=open("./README.md").read(),
+    long_description_content_type="text/markdown",
+
     license = __license__,
     url = __uri__,
     author = __author__,

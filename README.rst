@@ -1,7 +1,7 @@
 |travis| |appveyor|
 
-cpuid-py
-=======
+cpuid
+=====
 
 cpuid Pythonic API
 
@@ -12,13 +12,13 @@ Stable version:
 
 .. code-block:: bash
 
-    $ pip install --upgrade cpuid-py
+    $ pip install --upgrade cpuid
 
 Development version:
 
 .. code-block:: bash
 
-    $ pip install --upgrade --index-url https://test.pypi.org/pypi/ cpuid-py
+    $ pip install --upgrade --index-url https://test.pypi.org/pypi/ cpuid
 
 .. |travis| image:: https://travis-ci.org/fpelliccioni/cpuid-py.svg?branch=master
  		   :target: https://travis-ci.org/fpelliccioni/cpuid-py
