@@ -17,6 +17,9 @@ def cpu_name():
     return "".join((struct.pack("IIII", *cpuid(0x80000000 + i)).decode("utf-8")
                     for i in range(2, 5))).strip()
 
+def xgetbv(ctr):
+    return cpuid_native.xgetbv(ctr)
+
 def _is_set(id, reg_idx, bit):
     regs = cpuid(id)
 
@@ -62,7 +65,7 @@ def _is_long_mode_cpuid():
     _, _, _, d = cpuid(0x80000001)
     return _is_long_mode(d)
 
-
+# https://en.wikichip.org/wiki/intel/cpuid
 def _intel(family, model):
     cpu_64bit = 0
     cpu_avx = 0
