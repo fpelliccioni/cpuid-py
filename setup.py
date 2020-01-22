@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 # 
-# Copyright (c) 2017 Fernando Pelliccioni
+# Copyright (c) 2017-2020 Fernando Pelliccioni
 # 
 
 from setuptools import setup
@@ -13,7 +13,7 @@ __version__ = "0.0.7"
 __author__ = "Fernando Pelliccioni"
 __email__ = "fpelliccioni@gmail.com"
 __license__ = "MIT"
-__copyright__ = "Copyright (c) 2017 Fernando Pelliccioni"
+__copyright__ = "Copyright (c) 2017-2020 Fernando Pelliccioni"
 
 
 install_requires = [
