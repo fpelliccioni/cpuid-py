@@ -234,6 +234,10 @@ def _intel(family, model):
 
 
 def _amd(family, model):
+    cpu_64bit = 0
+    cpu_avx = 0
+    modelstr = ""
+
     if family == 5:
         if model <= 3:
             modelstr = "k5"
@@ -287,6 +291,10 @@ def _amd(family, model):
 
 
 def _centaur_hauls(family, model):
+    cpu_64bit = 0
+    cpu_avx = 0
+    modelstr = ""
+
     if family == 6:
         if model < 9:
             modelstr = "viac3"
