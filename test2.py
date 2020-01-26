@@ -79,6 +79,175 @@
 # PREFETCHWT1               #TODO(fernando): ver en qué marchs se usa...
 
 
+# ------------------------------------------------------------------------------------
+#TODO(fernando): chequear las siguientes instrucciones a ver si las soportamos
+	# CMOV:               "CMOV",               // i686 CMOV
+	# NX:                 "NX",                 // NX (No-Execute) bit
+	# AMD3DNOW:           "AMD3DNOW",           // AMD 3DNOW
+	# AMD3DNOWEXT:        "AMD3DNOWEXT",        // AMD 3DNowExt
+	# MMX:                "MMX",                // Standard MMX
+	# MMXEXT:             "MMXEXT",             // SSE integer functions or AMD MMX ext
+	# SSE:                "SSE",                // SSE functions
+	# SSE2:               "SSE2",               // P4 SSE2 functions
+	# SSE3:               "SSE3",               // Prescott SSE3 functions
+	# SSSE3:              "SSSE3",              // Conroe SSSE3 functions
+	# SSE4:               "SSE4.1",             // Penryn SSE4.1 functions
+	# SSE4A:              "SSE4A",              // AMD Barcelona microarchitecture SSE4a instructions
+	# SSE42:              "SSE4.2",             // Nehalem SSE4.2 functions
+	# AVX:                "AVX",                // AVX functions
+	# AVX2:               "AVX2",               // AVX functions
+	# FMA3:               "FMA3",               // Intel FMA 3
+	# FMA4:               "FMA4",               // Bulldozer FMA4 functions
+	# XOP:                "XOP",                // Bulldozer XOP functions
+	# F16C:               "F16C",               // Half-precision floating-point conversion
+	# BMI1:               "BMI1",               // Bit Manipulation Instruction Set 1
+	# BMI2:               "BMI2",               // Bit Manipulation Instruction Set 2
+	# TBM:                "TBM",                // AMD Trailing Bit Manipulation
+	# LZCNT:              "LZCNT",              // LZCNT instruction
+	# POPCNT:             "POPCNT",             // POPCNT instruction
+	# AESNI:              "AESNI",              // Advanced Encryption Standard New Instructions
+	# CLMUL:              "CLMUL",              // Carry-less Multiplication
+	# HTT:                "HTT",                // Hyperthreading (enabled)
+	# HLE:                "HLE",                // Hardware Lock Elision
+	# RTM:                "RTM",                // Restricted Transactional Memory
+	# RDRAND:             "RDRAND",             // RDRAND instruction is available
+	# RDSEED:             "RDSEED",             // RDSEED instruction is available
+	# ADX:                "ADX",                // Intel ADX (Multi-Precision Add-Carry Instruction Extensions)
+	# SHA:                "SHA",                // Intel SHA Extensions
+	# AVX512F:            "AVX512F",            // AVX-512 Foundation
+	# AVX512DQ:           "AVX512DQ",           // AVX-512 Doubleword and Quadword Instructions
+	# AVX512IFMA:         "AVX512IFMA",         // AVX-512 Integer Fused Multiply-Add Instructions
+	# AVX512PF:           "AVX512PF",           // AVX-512 Prefetch Instructions
+	# AVX512ER:           "AVX512ER",           // AVX-512 Exponential and Reciprocal Instructions
+	# AVX512CD:           "AVX512CD",           // AVX-512 Conflict Detection Instructions
+	# AVX512BW:           "AVX512BW",           // AVX-512 Byte and Word Instructions
+	# AVX512VL:           "AVX512VL",           // AVX-512 Vector Length Extensions
+	# AVX512VBMI:         "AVX512VBMI",         // AVX-512 Vector Bit Manipulation Instructions
+	# AVX512VBMI2:        "AVX512VBMI2",        // AVX-512 Vector Bit Manipulation Instructions, Version 2
+	# AVX512VNNI:         "AVX512VNNI",         // AVX-512 Vector Neural Network Instructions
+	# AVX512VPOPCNTDQ:    "AVX512VPOPCNTDQ",    // AVX-512 Vector Population Count Doubleword and Quadword
+	# GFNI:               "GFNI",               // Galois Field New Instructions
+	# VAES:               "VAES",               // Vector AES
+	# AVX512BITALG:       "AVX512BITALG",       // AVX-512 Bit Algorithms
+	# VPCLMULQDQ:         "VPCLMULQDQ",         // Carry-Less Multiplication Quadword
+	# AVX512BF16:         "AVX512BF16",         // AVX-512 BFLOAT16 Instruction
+	# AVX512VP2INTERSECT: "AVX512VP2INTERSECT", // AVX-512 Intersect for D/Q
+	# MPX:                "MPX",                // Intel MPX (Memory Protection Extensions)
+	# ERMS:               "ERMS",               // Enhanced REP MOVSB/STOSB
+	# RDTSCP:             "RDTSCP",             // RDTSCP Instruction
+	# CX16:               "CX16",               // CMPXCHG16B Instruction
+	# SGX:                "SGX",                // Software Guard Extensions
+	# SGXLC:              "SGXLC",              // Software Guard Extensions Launch Control
+	# IBPB:               "IBPB",               // Indirect Branch Restricted Speculation and Indirect Branch Predictor Barrier
+	# STIBP:              "STIBP",              // Single Thread Indirect Branch Predictors
+	# VMX:                "VMX",                // Virtual Machine Extensions
+
+	# // Performance indicators
+	# SSE2SLOW: "SSE2SLOW", // SSE2 supported, but usually not faster
+	# SSE3SLOW: "SSE3SLOW", // SSE3 supported, but usually not faster
+	# ATOM:     "ATOM",     // Atom processor, some SSSE3 instructions are slower
+# ------------------------------------------------------------------------------------
+
+
+# ------------------------------------------------------------------------------------
+#TODO(fernando): chequear las siguientes instrucciones a ver si las soportamos
+# Provienen de GCC: https://gcc.gnu.org/onlinedocs/gcc/x86-Options.html
+
+# -mmmx
+# -msse
+# -msse2
+# -msse3
+# -mssse3
+# -msse4
+# -msse4a
+# -msse4.1
+# -msse4.2
+# -mavx
+# -mavx2
+# -mavx512f
+# -mavx512pf
+# -mavx512er
+# -mavx512cd
+# -mavx512vl
+# -mavx512bw
+# -mavx512dq
+# -mavx512ifma
+# -mavx512vbmi
+# -msha
+# -maes
+# -mpclmul
+# -mclflushopt
+# -mclwb
+# -mfsgsbase
+# -mptwrite
+# -mrdrnd
+# -mf16c
+# -mfma
+# -mpconfig
+# -mwbnoinvd
+# -mfma4
+# -mprfchw
+# -mrdpid
+# -mprefetchwt1
+# -mrdseed
+# -msgx
+# -mxop
+# -mlwp
+# -m3dnow
+# -m3dnowa
+# -mpopcnt
+# -mabm
+# -madx
+# -mbmi
+# -mbmi2
+# -mlzcnt
+# -mfxsr
+# -mxsave
+# -mxsaveopt
+# -mxsavec
+# -mxsaves
+# -mrtm
+# -mhle
+# -mtbm
+# -mmwaitx
+# -mclzero
+# -mpku
+# -mavx512vbmi2
+# -mavx512bf16
+# -mgfni
+# -mvaes
+# -mwaitpkg
+# -mvpclmulqdq
+# -mavx512bitalg
+# -mmovdiri
+# -mmovdir64b
+# -menqcmd
+# -mavx512vpopcntdq
+# -mavx512vp2intersect
+# -mavx5124fmaps
+# -mavx512vnni
+# -mavx5124vnniw
+# -mcldemote
+
+# -mcld
+# -mvzeroupper
+
+# -mcx16
+# -msahf
+# -mmovbe
+# -mshstk
+# -mcrc32
+# -mrecip
+
+# ------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
 #TODO(fernando) ---------------------------
 # VMX               https://github.com/klauspost/cpuid/blob/master/cpuid.go#L866
 # AESNI             https://github.com/klauspost/cpuid/blob/master/cpuid.go#L878
@@ -90,6 +259,8 @@
 # https://github.com/klauspost/cpuid/blob/master/cpuid.go
 # https://www.agner.org/optimize/#vectorclass
 # https://github.com/vectorclass/version2/blob/master/instrset_detect.cpp
+# https://hjlebbink.github.io/x86doc/
+# https://software.intel.com/sites/default/files/managed/c5/15/architecture-instruction-set-extensions-programming-reference.pdf
 
 import cpuid
 import base64
@@ -333,7 +504,7 @@ def support_bmi2():
     _, b, _, _ = cpuid.cpuid_count(7, 0)
     return (b & (1 << 3)) != 0
 
-#TODO(fernando): check if CPU is AMD
+#Note(fernando): check if CPU is AMD, I think it is not necessary
 # static bool TBM(void) { return CPU_Rep.isAMD_ && CPU_Rep.f_81_ECX_[21]; }
 def support_tbm():
     if max_extended_function() < 0x80000001: return False
@@ -368,7 +539,6 @@ def support_prefetchw():
 
 def support_prefetchwt1():
     if max_function_id() < 0x00000007: return False
-    # _, _, c, _ = cpuid.cpuid(0x00000007)
     _, _, c, _ = cpuid.cpuid_count(7, 0)
     return (c & (1 << 0)) != 0
 
@@ -459,62 +629,51 @@ def support_avx5124fmaps_cpu():
 
 def support_avx512vbmi_cpu():
     if max_function_id() < 0x00000007: return False
-    # _, _, c, _ = cpuid.cpuid(0x00000007)
     _, _, c, _ = cpuid.cpuid_count(7, 0)
     return (c & (1 << 1)) != 0
 
 def support_avx512ifma_cpu():
     if max_function_id() < 0x00000007: return False
-    # _, b, _, _ = cpuid.cpuid(0x00000007)
     _, b, _, _ = cpuid.cpuid_count(7, 0)
     return (b & (1 << 21)) != 0
 
 def support_avx512vbmi2_cpu():
     if max_function_id() < 0x00000007: return False
-    # _, _, c, _ = cpuid.cpuid(0x00000007)
     _, _, c, _ = cpuid.cpuid_count(7, 0)
     return (c & (1 << 6)) != 0
 
 def support_avx512vpopcntdq_cpu():
     if max_function_id() < 0x00000007: return False
-    # _, _, c, _ = cpuid.cpuid(0x00000007)
     _, _, c, _ = cpuid.cpuid_count(7, 0)
     return (c & (1 << 14)) != 0
 
 def support_avx512bitalg_cpu():
     if max_function_id() < 0x00000007: return False
-    # _, _, c, _ = cpuid.cpuid(0x00000007)
     _, _, c, _ = cpuid.cpuid_count(7, 0)
     return (c & (1 << 12)) != 0
 
 def support_avx512vnni_cpu():
     if max_function_id() < 0x00000007: return False
-    # _, _, c, _ = cpuid.cpuid(0x00000007)
     _, _, c, _ = cpuid.cpuid_count(7, 0)
     return (c & (1 << 11)) != 0
 
 def support_avx512bf16_cpu():
-    #TODO(fernando): is it ok to check the max_function_id() < 0x00000007 for calling cpuid_count(7, 1) ?
     if max_function_id() < 0x00000007: return False
     a, _, _, _ = cpuid.cpuid_count(7, 1)
     return (a & (1 << 5)) != 0
 
 def support_avx512vp2intersect_cpu():
-    return False #TODO(fernando) ... bit_AVX512VP2INTERSECT
-    # if max_function_id() < 0x00000007: return False
-    ## _, _, _, d = cpuid.cpuid(0x00000007)
-    # _, _, _, d = cpuid.cpuid_count(7, 0)
-    # return (d & (1 << 3)) != 0
+    if max_function_id() < 0x00000007: return False
+    _, _, _,d = cpuid.cpuid_count(7, 0)
+    return (d & (1 << 8)) != 0
 
 def support_sha():
     if max_function_id() < 0x00000007: return False
-    # _, b, _, _ = cpuid.cpuid(0x00000007)
     _, b, _, _ = cpuid.cpuid_count(7, 0)
     return (b & (1 << 29)) != 0
 
 def support_clwb():
     if max_function_id() < 0x00000007: return False
-    # _, b, _, _ = cpuid.cpuid(0x00000007)
     _, b, _, _ = cpuid.cpuid_count(7, 0)
     return (b & (1 << 24)) != 0
 
@@ -524,17 +683,21 @@ def support_enclv():
 
 def support_umip():
     if max_function_id() < 0x00000007: return False
-    # _, _, c, _ = cpuid.cpuid(0x00000007)
     _, _, c, _ = cpuid.cpuid_count(7, 0)
     return (c & (1 << 2)) != 0
 
-# TODO(fernando): PTWRITE?
+# https://hjlebbink.github.io/x86doc/html/PTWRITE.html
 def support_ptwrite():
-    return False
+    # TODO(fernando): chequear que sea correcto
+    # If CPUID.(EAX=14H, ECX=0):EBX.PTWRITE [Bit 4] = 0.
+    # If LOCK prefix is used.
+    # If 66H prefix is used.
+    if max_function_id() < 0x00000014: return False
+    _, b, _, _ = cpuid.cpuid_count(0x00000014, 0)
+    return (b & (1 << 4)) != 0
 
 def support_rdpid():
     if max_function_id() < 0x00000007: return False
-    # _, _, c, _ = cpuid.cpuid(0x00000007)
     _, _, c, _ = cpuid.cpuid_count(7, 0)
     return (c & (1 << 22)) != 0
 
@@ -545,52 +708,50 @@ def support_sgx():
 
 def support_gfni():
     if max_function_id() < 0x00000007: return False
-    # _, _, c, _ = cpuid.cpuid(0x00000007)
     _, _, c, _ = cpuid.cpuid_count(7, 0)
     return (c & (1 << 8)) != 0
 
-# TODO(fernando): GFNI-SSE?          
+# https://software.intel.com/en-us/forums/intel-isa-extensions/topic/810449
 def support_gfni_sse():
-    return False
+    return support_gfni()
 
 def support_vpclmulqdq():
     if max_function_id() < 0x00000007: return False
-    # _, _, c, _ = cpuid.cpuid(0x00000007)
     _, _, c, _ = cpuid.cpuid_count(7, 0)
     return (c & (1 << 10)) != 0
 
 def support_vaes():
     if max_function_id() < 0x00000007: return False
-    # _, _, c, _ = cpuid.cpuid(0x00000007)
     _, _, c, _ = cpuid.cpuid_count(7, 0)
     return (c & (1 << 9)) != 0
 
 def support_pconfig():
     if max_function_id() < 0x00000007: return False
-    # _, _, _, d = cpuid.cpuid(0x00000007)
     _, _, _, d = cpuid.cpuid_count(7, 0)
     return (d & (1 << 18)) != 0
 
-# TODO(fernando): WBNOINVD       
+# TODO(fernando): verificar si es correcto       
 def support_wbnoinvd():
-    return False
+    if max_extended_function() < 0x80000008: return False
+    _, b, _, _ = cpuid.cpuid(0x80000008)
+    return (b & (1 << 9)) != 0
 
-#TODO(fernando): GCC hace referencia a MOVDIRI, está relacionado a MOVDIR?
+#https://www.felixcloutier.com/x86/movdiri
 def support_movdir():
     if max_function_id() < 0x00000007: return False
-    # _, _, c, _ = cpuid.cpuid(0x00000007)
     _, _, c, _ = cpuid.cpuid_count(7, 0)
     return (c & (1 << 27)) != 0
 
 def support_movdir64b():
     if max_function_id() < 0x00000007: return False
-    # _, _, c, _ = cpuid.cpuid(0x00000007)
     _, _, c, _ = cpuid.cpuid_count(7, 0)
     return (c & (1 << 28)) != 0
 
-# TODO(fernando): BFLOAT16       
+# https://www.extremetech.com/computing/296246-intel-announces-cooper-lake-will-be-socketed-compatible-with-future-ice-lake-cpus
+# TODO(fernando): ver si hay diferencia entre avx512bf16 y bfloat16  
+# cooperlake y tigerlake       
 def support_bfloat16():
-    return False
+    return support_avx512bf16_os()
 
 def support_3dnow():
     if max_extended_function() < 0x80000001: return False
@@ -628,23 +789,37 @@ def support_cx16():
     _, _, c, _ = cpuid.cpuid(0x00000001)
     return c & (1 << 13) != 0
 
-#TODO(fernando): GCC hace referencia a MWAITX, creemos que es lo mismo
-def support_mwait():
-    if max_function_id() < 0x00000001: return False
-    _, _, c, _ = cpuid.cpuid(0x00000001)
-    return c & (1 << 3) != 0
+# def support_mwait():
+#     if max_function_id() < 0x00000001: return False
+#     _, _, c, _ = cpuid.cpuid(0x00000001)
+#     return c & (1 << 3) != 0
 
-# TODO(fernando): CLZERO       (AMD) 
+# https://reviews.llvm.org/rL269911
+def support_mwaitx():
+    if max_extended_function() < 0x80000001: return False
+    _, _, c, _ = cpuid.cpuid(0x80000001)
+    return c & (1 << 29) != 0
+
+# https://patchew.org/QEMU/20190925214948.22212-1-bigeasy@linutronix.de/
 def support_clzero():
-    return False
+    if max_extended_function() < 0x80000008: return False
+    _, b, _, _ = cpuid.cpuid(0x80000008)
+    return (b & (1 << 0)) != 0
 
+#define CPUID_8000_0008_EBX_XSAVEERPTR  (1U << 2)
+
+
+
+
+
+
+
+#TODO(fernando): por las dudas chequear a ver si la implementación de Golang es correcta!
 # "Extended MMX (AMD) https://en.wikipedia.org/wiki/Extended_MMX"
 def support_mmxext():
     if max_extended_function() < 0x80000001: return False
     _, _, _, d = cpuid.cpuid(0x80000001)
     return d & (1 << 22) != 0
-
-
 
 
 
@@ -837,7 +1012,7 @@ instructions_map = {
     70:  support_xop,
     71:  support_lwp,
     72:  support_cx16,
-    73:  support_mwait,
+    73:  support_mwaitx,
     74:  support_clzero,
     75:  support_mmxext,
     76:  support_prefetchwt1,
@@ -1099,7 +1274,7 @@ instructions_names = {
     70:  "xop",
     71:  "lwp",
     72:  "cx16",
-    73:  "mwait",
+    73:  "mwaitx",
     74:  "clzero",
     75:  "mmxext",
     76:  "prefetchwt1",
