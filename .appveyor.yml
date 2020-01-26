@@ -42,6 +42,9 @@ install:
 
   - "%PYTHON%\\python.exe -m pip install cpuid"
   - "%PYTHON%\\python.exe -c \"import cpuid; _, b, _, _ = cpuid.cpuid_count(7, 0); print((b >> 29) & 1)\""
+
+  - cd %APPVEYOR_BUILD_FOLDER% 
+
   - "%PYTHON%\\python.exe test.py"
 
  
