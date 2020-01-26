@@ -95,6 +95,7 @@ import cpuid
 import base64
 import string
 import base58
+from enum import Enum
 
 
 # # x = base58.encode(37778931862960419483135)
@@ -760,7 +761,7 @@ def support_avx512vp2intersect_os():
 # -----------------------------------------------------------------
 
 
-extensions_map = {
+instructions_map = {
     0:   cpuid._is_long_mode_cpuid,
     1:   support_movbe,
     2:   support_mmx,
@@ -1022,7 +1023,7 @@ extensions_map = {
     255: reserved,
 }
 
-extensions_names = {
+instructions_names = {
     0:   "64 bits",
     1:   "movbe",
     2:   "mmx",
@@ -1034,7 +1035,7 @@ extensions_names = {
     8:   "sse42",
     9:   "sse4a",
     10:  "popcnt",
-    11:  "abm",
+    11:  "lzcnt",
     12:  "pku",
     13:  "avx",
     14:  "avx2",
@@ -1284,9 +1285,9 @@ extensions_names = {
     255: "__reserved__",
 }
 
-def get_available_extensions():
+def get_available_instructions():
     data = []
-    for _, f in extensions_map.items():
+    for _, f in instructions_map.items():
         # data.append(str(int(f())))
         data.append(int(f()))
     return data
@@ -1304,36 +1305,35 @@ def _to_ints_bin(data):
     return res
 
 def _pad_right_array(data):
-    if len(data) >= len(extensions_map): return data
-    n = len(extensions_map) - len(data)
+    if len(data) >= len(instructions_map): return data
+    n = len(instructions_map) - len(data)
     for i in range(n):
         data.append(int(0))
     return data
 
-def encode_extensions(exts):
-    exts = _to_chars_bin(exts)
-    exts_str = ''.join(reversed(exts))
-    exts_num = int(exts_str, 2)
-    exts_num_b58 = base58.flex_encode(exts_num)
-    return exts_num_b58
+def encode_instructions(insts):
+    insts = _to_chars_bin(insts)
+    insts_str = ''.join(reversed(insts))
+    insts_num = int(insts_str, 2)
+    insts_num_b58 = base58.flex_encode(insts_num)
+    return insts_num_b58
 
-def decode_extensions(architecture_id):
-    exts_num = base58.flex_decode(architecture_id)
-    res = "{0:b}".format(exts_num)
-    res = res.zfill(len(extensions_map))
+def decode_instructions(architecture_id):
+    insts_num = base58.flex_decode(architecture_id)
+    res = "{0:b}".format(insts_num)
+    res = res.zfill(len(instructions_map))
     return _to_ints_bin([*reversed(res)])
     # return [*reversed(res)]
 
 def get_architecture_id():
-    exts = get_available_extensions()
-    architecture_id = encode_extensions(exts)
+    insts = get_available_instructions()
+    architecture_id = encode_instructions(insts)
     return architecture_id
 
 def print_available_extensions(exts):
     for i in range(len(exts)):
         if (exts[i] == 1):
-            print("your computer supports " + extensions_names[i])
-
+            print("your computer supports " + instructions_names[i])
 
 # ----------------------------------------------------------------------
 
@@ -1528,11 +1528,119 @@ print("LogicalCPU: %s" % LogicalCPU())
 print("VM: %s" % VM())
 print("Hyperthreading: %s" % Hyperthreading())
 
+
+
 print("CPUID Microarchitecture : %s%s" % cpuid.cpu_microarchitecture())
 architecture_id = get_architecture_id()
-print("architecture_id: %s" % architecture_id)
+print(architecture_id)
 
-exts = get_available_extensions()
-print(exts)
 
-print_available_extensions(exts)
+# According XLS
+haswell = [1,1,1,1,1,1,1,1,1,0,1,1,0,1,1,1,1,1,1,1,0,1,1,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0]
+haswell = _pad_right_array(haswell)
+# print(haswell)
+
+# print_available_extensions(haswell)
+
+insts = get_available_instructions()
+print(insts)
+print_available_extensions(insts)
+
+print("---------------------------------------------")
+print(support_avx_os())
+print(support_avx2_cpu())
+print("---------------------------------------------")
+
+
+for i in range(len(insts)):
+    if insts[i] != haswell[i]:
+        print("difference in pos " + str(i) + "    " + instructions_names[i])
+        if insts[i] == 0:
+            print("XLS supports    " + instructions_names[i])
+        else:
+            print("CPU supports    " + instructions_names[i])
+
+
+
+
+
+
+#                                                        X        X              X  X                    X  X                                                                                                                          X  X                 
+# haswell xls [1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+# calculated  [1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+
+
+# architecture_id = encode_instructions(insts)
+# print(architecture_id)
+print(decode_instructions(architecture_id))
+
+
+
+
+# data_str = ''.join(reversed(data))
+# print(data_str)
+# data_num = int(data_str, 2)
+# print(data_num)
+# print(hex(data_num))
+
+# data_num_b58 = base58.flex_encode(data_num)
+# print(data_num_b58)
+# x_dec = base58.flex_decode(data_num_b58)
+# print(x_dec)
+
+
+
+# 0x80000000000c22dadff
+
+# print(base64.b64encode(bytes([data_num])))
+# print(base64.b64encode(bytes(data2)))
+
+# data = ['0' for _ in range(256)]
+# print(data)
+
+# print("".join(data))
+
+
+# print(instructions[0]())
+# print(instructions_map[1]())
+# print(instructions_map[2]())
+# print(instructions_map[9]())
+# print(instructions_map[13]())
+# # print(instructions_map[75]())
+# print(instructions_map[76]())
+
+
+
+# print(support_xsave_cpu())
+# print(support_osxsave())
+# print(support_xsaveopt_cpu())
+
+
+
+
+
+
+# machdep.cpu.signature: 263777
+# machdep.cpu.brand: 0
+# machdep.cpu.features: 
+
+# FPU VME DE PSE TSC MSR PAE MCE CX8 APIC SEP MTRR PGE MCA CMOV PAT PSE36 CLFSH 
+# DS ACPI MMX FXSR SSE SSE2 SS HTT TM PBE SSE3 PCLMULQDQ DTES64 MON DSCPL VMX SMX 
+# EST TM2 SSSE3 FMA CX16 TPR PDCM SSE4.1 SSE4.2 x2APIC MOVBE POPCNT AES PCID 
+# XSAVE OSXSAVE SEGLIM64 TSCTMR AVX1.0 RDRAND F16C
+
+# machdep.cpu.leaf7_features: 
+
+# RDWRFSGS TSC_THREAD_OFFSET BMI1 AVX2 SMEP BMI2 ERMS INVPCID FPU_CSDS MDCLEAR 
+# IBRS STIBP L1DF SSBD
+
+# machdep.cpu.extfeatures: 
+
+# SYSCALL XD 1GBPAGE EM64T LAHF LZCNT RDTSCP TSCI
+
+# machdep.cpu.logical_per_package: 16
+# machdep.cpu.cores_per_package: 8
+# machdep.cpu.microcode_version: 27
+# machdep.cpu.processor_flag: 5
+# machdep.cpu.mwait.linesize_min: 64
+# machdep.cpu.mwait.linesize_max: 64
