@@ -6,21 +6,15 @@ branches:
   only:
   - master
   - dev
+  - test
 
 linux: &linux
    os: linux
    sudo: required
    language: python
-   python: "3.6"
+   python: "3.7"
    services:
      - docker
-
-osx: &osx
-   os: osx
-   sudo: required
-   language: generic
-  #  language: python
-  #  python: "3.6"
 
 node_js:
   - "node"
@@ -30,54 +24,15 @@ matrix:
    include:
 
       - <<: *linux
-        env: UNIT_TESTS=true
-        compiler: gcc
-        python: "2.7"
-
-      - <<: *linux
         env: UNIT_TESTS=true UPLOAD_PKG=false
         compiler: gcc
-        python: "3.6"
-
-      - <<: *osx
-        osx_image: xcode8.3
-        env: CONAN_APPLE_CLANG_VERSIONS=8.1 UNIT_TESTS=true TRAVIS_PYTHON_VERSION=2.7
-        python: "2.7"
-
-      - <<: *osx
-        osx_image: xcode8.3
-        env: CONAN_APPLE_CLANG_VERSIONS=8.1 UNIT_TESTS=true TRAVIS_PYTHON_VERSION=3.6
-        python: "3.6"
+        python: "3.7"
 
 
 install:
 
   - set -e
-  # - set -x
-
-  - |
-    if [[ "${TRAVIS_OS_NAME}" != "linux" ]]; then
-      brew update || brew update
-      brew outdated pyenv || brew upgrade pyenv
-      brew install pyenv-virtualenv
-      brew install cmake || true
-
-      if which pyenv > /dev/null; then
-          eval "$(pyenv init -)"
-          eval "$(pyenv virtualenv-init -)" 
-      fi
-
-      if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then
-        pyenv install 2.7.10
-        pyenv virtualenv 2.7.10 conan
-      else
-        pyenv install 3.6.1
-        pyenv virtualenv 3.6.1 conan
-      fi
-
-      pyenv rehash
-      pyenv activate conan
-    fi
+  - set -x
 
   - |
     pip install wheel --upgrade
@@ -87,67 +42,12 @@ install:
 script:
 
   - set -e
-  # - set -x
-
-  # - echo "TRAVIS_BRANCH:"
-  # - echo "${TRAVIS_BRANCH}"
-
-  - |
-    if [[ "${TRAVIS_OS_NAME}" != "linux" ]]; then
-      if which pyenv > /dev/null; then
-          eval "$(pyenv init -)"
-          eval "$(pyenv virtualenv-init -)"
-      fi
-      pyenv activate conan
-    fi
+  - set -x
 
   - python -c 'import cpuid; _, b, _, _ = cpuid.cpuid_count(7, 0); print((b >> 29) & 1)'
-
-  - |
-    if [[ "${TRAVIS_OS_NAME}" == "linux" ]]; then
-      less /proc/cpuinfo
-      cd ${TRAVIS_BUILD_DIR}
-      chmod a+x .travis/entrypoint.sh
-      /usr/bin/docker run --rm -ti -e TRAVIS_PYTHON_VERSION=$TRAVIS_PYTHON_VERSION \
-                                  -e UNIT_TESTS=$UNIT_TESTS \
-                                  -e UPLOAD_PKG=$UPLOAD_PKG \
-                                  -e TRAVIS_BRANCH=${TRAVIS_BRANCH} \
-                                  -v ${TRAVIS_BUILD_DIR}:/home/conan/project \
-                                  -v ${TRAVIS_BUILD_DIR}/.travis/entrypoint.sh:/tmp/entrypoint.sh lasote/conangcc63 \
-                                  /bin/bash \
-                                  -c /tmp/entrypoint.sh
-    else
+  - python test.py
 
 
-      if [[ "${TRAVIS_BRANCH}" == "dev" ]]; then
-        # Just for dev branch
-        pip install --upgrade --index-url https://test.pypi.org/pypi/ cpuid-native
-      fi    
-
-      # pip install -v -e .
-      pip install -e .
-
-      # if [[ "${UNIT_TESTS}" == "true" ]]; then
-      #   python test/test_chain.py
-      # fi    
-
-      if [[ "${UPLOAD_PKG}" == "true" ]]; then
-        python setup.py sdist
-        python setup.py bdist_wheel --universal
-      fi    
-    fi
-
-  - |
-    if [[ "${UPLOAD_PKG}" == "true" ]]; then
-
-      if [[ "${TRAVIS_BRANCH}" == "master" ]]; then
-        twine upload -u ${PYPI_USER_NAME} -p ${PYPI_PASSWORD} dist/* || true
-      else
-        # For Testing Release
-        # twine upload -r test -u ${PYPI_USER_NAME} -p ${PYPI_PASSWORD} dist/* || true
-        twine upload -u ${PYPI_USER_NAME} -p ${PYPI_PASSWORD} --repository-url https://test.pypi.org/legacy/ dist/*  || true
-      fi    
-    fi    
 
 
 notifications:
