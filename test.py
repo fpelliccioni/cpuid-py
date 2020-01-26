@@ -760,7 +760,7 @@ def support_avx512vp2intersect_os():
 # -----------------------------------------------------------------
 
 
-instructions_map = {
+extensions_map = {
     0:   cpuid._is_long_mode_cpuid,
     1:   support_movbe,
     2:   support_mmx,
@@ -1022,7 +1022,7 @@ instructions_map = {
     255: reserved,
 }
 
-instructions_names = {
+extensions_names = {
     0:   "64 bits",
     1:   "movbe",
     2:   "mmx",
@@ -1284,9 +1284,9 @@ instructions_names = {
     255: "__reserved__",
 }
 
-def get_available_instructions():
+def get_available_extensions():
     data = []
-    for _, f in instructions_map.items():
+    for _, f in extensions_map.items():
         # data.append(str(int(f())))
         data.append(int(f()))
     return data
@@ -1304,40 +1304,41 @@ def _to_ints_bin(data):
     return res
 
 def _pad_right_array(data):
-    if len(data) >= len(instructions_map): return data
-    n = len(instructions_map) - len(data)
+    if len(data) >= len(extensions_map): return data
+    n = len(extensions_map) - len(data)
     for i in range(n):
         data.append(int(0))
     return data
 
-def encode_instructions(insts):
-    insts = _to_chars_bin(insts)
-    insts_str = ''.join(reversed(insts))
-    insts_num = int(insts_str, 2)
-    insts_num_b58 = base58.flex_encode(insts_num)
-    return insts_num_b58
+def encode_extensions(exts):
+    exts = _to_chars_bin(exts)
+    exts_str = ''.join(reversed(exts))
+    exts_num = int(exts_str, 2)
+    exts_num_b58 = base58.flex_encode(exts_num)
+    return exts_num_b58
 
-def decode_instructions(architecture_id):
-    insts_num = base58.flex_decode(architecture_id)
-    res = "{0:b}".format(insts_num)
-    res = res.zfill(len(instructions_map))
+def decode_extensions(architecture_id):
+    exts_num = base58.flex_decode(architecture_id)
+    res = "{0:b}".format(exts_num)
+    res = res.zfill(len(extensions_map))
     return _to_ints_bin([*reversed(res)])
     # return [*reversed(res)]
 
 def get_architecture_id():
-    insts = get_available_instructions()
-    architecture_id = encode_instructions(insts)
+    exts = get_available_extensions()
+    architecture_id = encode_extensions(exts)
     return architecture_id
 
 def print_available_extensions(exts):
     for i in range(len(exts)):
         if (exts[i] == 1):
-            print("your computer supports " + instructions_names[i])
+            print("your computer supports " + extensions_names[i])
 
 print("CPUID Microarchitecture : %s%s" % cpuid.cpu_microarchitecture())
 architecture_id = get_architecture_id()
 print("architecture_id: %s" % architecture_id)
 
-insts = get_available_instructions()
-print(insts)
+exts = get_available_extensions()
+print(exts)
 
+print_available_extensions(exts)
