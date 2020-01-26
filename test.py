@@ -95,7 +95,7 @@ import cpuid
 import base64
 import string
 import base58
-
+from enum import Enum
 
 # # x = base58.encode(37778931862960419483135)
 
