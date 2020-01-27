@@ -150,98 +150,27 @@
 
 
 # ------------------------------------------------------------------------------------
-#TODO(fernando): chequear las siguientes instrucciones a ver si las soportamos
+#TODO(fernando): Faltan implementar
 # Provienen de GCC: https://gcc.gnu.org/onlinedocs/gcc/x86-Options.html
 
-# -mmmx
-# -msse
-# -msse2
-# -msse3
-# -mssse3
-# -msse4
-# -msse4a
-# -msse4.1
-# -msse4.2
-# -mavx
-# -mavx2
-# -mavx512f
-# -mavx512pf
-# -mavx512er
-# -mavx512cd
-# -mavx512vl
-# -mavx512bw
-# -mavx512dq
-# -mavx512ifma
-# -mavx512vbmi
-# -msha
-# -maes
-# -mpclmul
-# -mclflushopt
-# -mclwb
-# -mfsgsbase
-# -mptwrite
-# -mrdrnd
-# -mf16c
-# -mfma
-# -mpconfig
-# -mwbnoinvd
-# -mfma4
 # -mprfchw
-# -mrdpid
-# -mprefetchwt1
-# -mrdseed
-# -msgx
-# -mxop
-# -mlwp
-# -m3dnow
-# -m3dnowa
-# -mpopcnt
-# -mabm
-# -madx
-# -mbmi
-# -mbmi2
-# -mlzcnt
 # -mfxsr
-# -mxsave
-# -mxsaveopt
-# -mxsavec
-# -mxsaves
 # -mrtm
 # -mhle
-# -mtbm
-# -mmwaitx
-# -mclzero
-# -mpku
-# -mavx512vbmi2
-# -mavx512bf16
-# -mgfni
-# -mvaes
 # -mwaitpkg
-# -mvpclmulqdq
-# -mavx512bitalg
-# -mmovdiri
-# -mmovdir64b
 # -menqcmd
-# -mavx512vpopcntdq
-# -mavx512vp2intersect
-# -mavx5124fmaps
-# -mavx512vnni
-# -mavx5124vnniw
 # -mcldemote
-
 # -mcld
 # -mvzeroupper
-
-# -mcx16
 # -msahf
-# -mmovbe
 # -mshstk
 # -mcrc32
 # -mrecip
+ 
+# ------------------------------------------------------------------------------------
+#TODO(fernando): ver todas las instrucciones que se usan en el proyecto QEMU
 
 # ------------------------------------------------------------------------------------
-
-
 
 
 
@@ -730,7 +659,6 @@ def support_pconfig():
     _, _, _, d = cpuid.cpuid_count(7, 0)
     return (d & (1 << 18)) != 0
 
-# TODO(fernando): verificar si es correcto       
 def support_wbnoinvd():
     if max_extended_function() < 0x80000008: return False
     _, b, _, _ = cpuid.cpuid(0x80000008)
@@ -805,14 +733,6 @@ def support_clzero():
     if max_extended_function() < 0x80000008: return False
     _, b, _, _ = cpuid.cpuid(0x80000008)
     return (b & (1 << 0)) != 0
-
-#define CPUID_8000_0008_EBX_XSAVEERPTR  (1U << 2)
-
-
-
-
-
-
 
 #TODO(fernando): por las dudas chequear a ver si la implementación de Golang es correcta!
 # "Extended MMX (AMD) https://en.wikipedia.org/wiki/Extended_MMX"
@@ -936,7 +856,7 @@ def support_avx512vp2intersect_os():
 # -----------------------------------------------------------------
 
 
-instructions_map = {
+extensions_map = {
     0:   cpuid._is_long_mode_cpuid,
     1:   support_movbe,
     2:   support_mmx,
@@ -1198,7 +1118,7 @@ instructions_map = {
     255: reserved,
 }
 
-instructions_names = {
+extensions_names = {
     0:   "64 bits",
     1:   "movbe",
     2:   "mmx",
@@ -1460,9 +1380,173 @@ instructions_names = {
     255: "__reserved__",
 }
 
-def get_available_instructions():
+extensions_flags = {
+    0:   ["-m32", "-m64"],
+    1:   "-mmovbe",
+    2:   "-mmmx",
+    3:   "-msse",
+    4:   "-msse2",
+    5:   "-msse3",
+    6:   "-mssse3",
+    7:   "-msse4.1",
+    8:   "-msse4.2",
+    9:   "-msse4a",
+    10:  "-mpopcnt",
+    11:  "-mlzcnt",
+    12:  "-mpku",
+    13:  "-mavx",
+    14:  "-mavx2",
+    15:  "-maes",
+    16:  "-mpclmul",
+    17:  "-mfsgsbase",
+    18:  "-mrdrnd",
+    19:  "-mfma",
+    20:  "-mfma4",
+    21:  "-mabm",
+    22:  "-mbmi",
+    23:  "-mbmi2",
+    24:  "-mtbm",
+    25:  "-mf16c",
+    26:  "-mrdseed",
+    27:  "-madx",
+    28:  "-mprefetchw",
+    29:  "-mclflushopt",
+    30:  "-mxsave",
+    31:  "-mxsaveopt",
+    32:  "-mxsavec",
+    33:  "-mxsaves",
+
+    34:  "-mavx512f",
+    35:  "-mavx512pf",
+    36:  "-mavx512er",
+    37:  "-mavx512vl",
+    38:  "-mavx512bw",
+    39:  "-mavx512dq",
+    40:  "-mavx512cd",
+    41:  "-mavx5124vnniw",
+    42:  "-mavx5124fmaps",
+    43:  "-mavx512vbmi",
+    44:  "-mavx512ifma",
+    45:  "-mavx512vbmi2",
+    46:  "-mavx512vpopcntdq",
+    47:  "-mavx512bitalg",
+    48:  "-mavx512vnni",
+    49:  "-mavx512bf16",
+    50:  "-mavx512vp2intersect",
+
+    51:  "-msha",
+    52:  "-mclwb",
+    53:  "-menclv",
+    54:  "-mumip",
+    55:  "-mptwrite",
+    56:  "-mrdpid",
+    57:  "-msgx",
+    58:  "-mgfni",
+    59:  "-mgfni",                      # gfni_sse
+    60:  "-mvpclmulqdq",
+    61:  "-mvaes",
+    62:  "-mpconfig",
+    63:  "-mwbnoinvd",
+    64:  "-mmovdiri",                   # mmovdir
+    65:  "-mmovdir64b",
+    66:  "-mbfloat16",
+    67:  "-m3dnow",
+    68:  "-m3dnowa",                    # 3dnowext
+    69:  "-m3dnowprefetch",
+    70:  "-mxop",
+    71:  "-mlwp",
+    72:  "-mcx16",
+    73:  "-mmwaitx",
+    74:  "-mclzero",
+    75:  "-mmmxext",
+    76:  "-mprefetchwt1",
+}
+
+extensions_compiler_compat = {
+    0:   {'gcc':4,'apple-clang': 10,'clang': 10,'msvc': 10,'mingw': 10}, #"64 bits",
+    1:   {'gcc':4,'apple-clang': 10,'clang': 10,'msvc': 10,'mingw': 10}, #"movbe",
+    2:   {'gcc':4,'apple-clang': 10,'clang': 10,'msvc': 10,'mingw': 10}, #"mmx",
+    3:   {'gcc':4,'apple-clang': 10,'clang': 10,'msvc': 10,'mingw': 10}, #"sse",
+    4:   {'gcc':4,'apple-clang': 10,'clang': 10,'msvc': 10,'mingw': 10}, #"sse2",
+    5:   {'gcc':4,'apple-clang': 10,'clang': 10,'msvc': 10,'mingw': 10}, #"sse3",
+    6:   {'gcc':4,'apple-clang': 10,'clang': 10,'msvc': 10,'mingw': 10}, #"ssse3",
+    7:   {'gcc':4,'apple-clang': 10,'clang': 10,'msvc': 10,'mingw': 10}, #"sse41",
+    8:   {'gcc':4,'apple-clang': 10,'clang': 10,'msvc': 10,'mingw': 10}, #"sse42",
+    9:   {'gcc':4,'apple-clang': 10,'clang': 10,'msvc': 10,'mingw': 10}, #"sse4a",
+    10:  {'gcc':4,'apple-clang': 10,'clang': 10,'msvc': 10,'mingw': 10}, #"popcnt",
+    11:  {'gcc':4,'apple-clang': 10,'clang': 10,'msvc': 10,'mingw': 10}, #"lzcnt",
+    12:  {'gcc':4,'apple-clang': 10,'clang': 10,'msvc': 10,'mingw': 10}, #"pku",
+    13:  {'gcc':4,'apple-clang': 10,'clang': 10,'msvc': 10,'mingw': 10}, #"avx",
+    14:  {'gcc':4,'apple-clang': 10,'clang': 10,'msvc': 10,'mingw': 10}, #"avx2",
+    15:  {'gcc':4,'apple-clang': 10,'clang': 10,'msvc': 10,'mingw': 10}, #"aes",
+    16:  {'gcc':4,'apple-clang': 10,'clang': 10,'msvc': 10,'mingw': 10}, #"pclmul",
+    17:  {'gcc':4,'apple-clang': 10,'clang': 10,'msvc': 10,'mingw': 10}, #"fsgsbase",
+    18:  {'gcc':4,'apple-clang': 10,'clang': 10,'msvc': 10,'mingw': 10}, #"rdrnd",
+    19:  {'gcc':4,'apple-clang': 10,'clang': 10,'msvc': 10,'mingw': 10}, #"fma3",
+    20:  {'gcc':4,'apple-clang': 10,'clang': 10,'msvc': 10,'mingw': 10}, #"fma4",
+    21:  {'gcc':4,'apple-clang': 10,'clang': 10,'msvc': 10,'mingw': 10}, #"abm",
+    22:  {'gcc':4,'apple-clang': 10,'clang': 10,'msvc': 10,'mingw': 10}, #"bmi",
+    23:  {'gcc':4,'apple-clang': 10,'clang': 10,'msvc': 10,'mingw': 10}, #"bmi2",
+    24:  {'gcc':4,'apple-clang': 10,'clang': 10,'msvc': 10,'mingw': 10}, #"tbm",
+    25:  {'gcc':4,'apple-clang': 10,'clang': 10,'msvc': 10,'mingw': 10}, #"f16c",
+    26:  {'gcc':4,'apple-clang': 10,'clang': 10,'msvc': 10,'mingw': 10}, #"rdseed",
+    27:  {'gcc':4,'apple-clang': 10,'clang': 10,'msvc': 10,'mingw': 10}, #"adx",
+    28:  {'gcc':4,'apple-clang': 10,'clang': 10,'msvc': 10,'mingw': 10}, #"prefetchw",
+    29:  {'gcc':4,'apple-clang': 10,'clang': 10,'msvc': 10,'mingw': 10}, #"clflushopt",
+    30:  {'gcc':4,'apple-clang': 10,'clang': 10,'msvc': 10,'mingw': 10}, #"xsave",
+    31:  {'gcc':4,'apple-clang': 10,'clang': 10,'msvc': 10,'mingw': 10}, #"xsaveopt",
+    32:  {'gcc':4,'apple-clang': 10,'clang': 10,'msvc': 10,'mingw': 10}, #"xsavec",
+    33:  {'gcc':4,'apple-clang': 10,'clang': 10,'msvc': 10,'mingw': 10}, #"xsaves",
+
+    34:  {'gcc':4,'apple-clang': 10,'clang': 10,'msvc': 10,'mingw': 10}, #"avx512f",
+    35:  {'gcc':4,'apple-clang': 10,'clang': 10,'msvc': 10,'mingw': 10}, #"avx512pf",
+    36:  {'gcc':4,'apple-clang': 10,'clang': 10,'msvc': 10,'mingw': 10}, #"avx512er",
+    37:  {'gcc':4,'apple-clang': 10,'clang': 10,'msvc': 10,'mingw': 10}, #"avx512vl",
+    38:  {'gcc':4,'apple-clang': 10,'clang': 10,'msvc': 10,'mingw': 10}, #"avx512bw",
+    39:  {'gcc':4,'apple-clang': 10,'clang': 10,'msvc': 10,'mingw': 10}, #"avx512dq",
+    40:  {'gcc':4,'apple-clang': 10,'clang': 10,'msvc': 10,'mingw': 10}, #"avx512cd",
+    41:  {'gcc':4,'apple-clang': 10,'clang': 10,'msvc': 10,'mingw': 10}, #"avx5124vnniw",
+    42:  {'gcc':4,'apple-clang': 10,'clang': 10,'msvc': 10,'mingw': 10}, #"avx5124fmaps",
+    43:  {'gcc':4,'apple-clang': 10,'clang': 10,'msvc': 10,'mingw': 10}, #"avx512vbmi",
+    44:  {'gcc':4,'apple-clang': 10,'clang': 10,'msvc': 10,'mingw': 10}, #"avx512ifma",
+    45:  {'gcc':4,'apple-clang': 10,'clang': 10,'msvc': 10,'mingw': 10}, #"avx512vbmi2",
+    46:  {'gcc':4,'apple-clang': 10,'clang': 10,'msvc': 10,'mingw': 10}, #"avx512vpopcntdq",
+    47:  {'gcc':4,'apple-clang': 10,'clang': 10,'msvc': 10,'mingw': 10}, #"avx512bitalg",
+    48:  {'gcc':4,'apple-clang': 10,'clang': 10,'msvc': 10,'mingw': 10}, #"avx512vnni",
+    49:  {'gcc':4,'apple-clang': 10,'clang': 10,'msvc': 10,'mingw': 10}, #"avx512bf16",
+    50:  {'gcc':4,'apple-clang': 10,'clang': 10,'msvc': 10,'mingw': 10}, #"avx512vp2intersect",
+
+    51:  {'gcc':4,'apple-clang': 10,'clang': 10,'msvc': 10,'mingw': 10}, #"sha",
+    52:  {'gcc':4,'apple-clang': 10,'clang': 10,'msvc': 10,'mingw': 10}, #"clwb",
+    53:  {'gcc':4,'apple-clang': 10,'clang': 10,'msvc': 10,'mingw': 10}, #"enclv",
+    54:  {'gcc':4,'apple-clang': 10,'clang': 10,'msvc': 10,'mingw': 10}, #"umip",
+    55:  {'gcc':4,'apple-clang': 10,'clang': 10,'msvc': 10,'mingw': 10}, #"ptwrite",
+    56:  {'gcc':4,'apple-clang': 10,'clang': 10,'msvc': 10,'mingw': 10}, #"rdpid",
+    57:  {'gcc':4,'apple-clang': 10,'clang': 10,'msvc': 10,'mingw': 10}, #"sgx",
+    58:  {'gcc':4,'apple-clang': 10,'clang': 10,'msvc': 10,'mingw': 10}, #"gfni",
+    59:  {'gcc':4,'apple-clang': 10,'clang': 10,'msvc': 10,'mingw': 10}, #"gfni_sse",
+    60:  {'gcc':4,'apple-clang': 10,'clang': 10,'msvc': 10,'mingw': 10}, #"vpclmulqdq",
+    61:  {'gcc':4,'apple-clang': 10,'clang': 10,'msvc': 10,'mingw': 10}, #"vaes",
+    62:  {'gcc':4,'apple-clang': 10,'clang': 10,'msvc': 10,'mingw': 10}, #"pconfig",
+    63:  {'gcc':4,'apple-clang': 10,'clang': 10,'msvc': 10,'mingw': 10}, #"wbnoinvd",
+    64:  {'gcc':4,'apple-clang': 10,'clang': 10,'msvc': 10,'mingw': 10}, #"movdir",
+    65:  {'gcc':4,'apple-clang': 10,'clang': 10,'msvc': 10,'mingw': 10}, #"movdir64b",
+    66:  {'gcc':4,'apple-clang': 10,'clang': 10,'msvc': 10,'mingw': 10}, #"bfloat16",
+    67:  {'gcc':4,'apple-clang': 10,'clang': 10,'msvc': 10,'mingw': 10}, #"3dnow",
+    68:  {'gcc':4,'apple-clang': 10,'clang': 10,'msvc': 10,'mingw': 10}, #"3dnowext",
+    69:  {'gcc':4,'apple-clang': 10,'clang': 10,'msvc': 10,'mingw': 10}, #"3dnowprefetch",
+    70:  {'gcc':4,'apple-clang': 10,'clang': 10,'msvc': 10,'mingw': 10}, #"xop",
+    71:  {'gcc':4,'apple-clang': 10,'clang': 10,'msvc': 10,'mingw': 10}, #"lwp",
+    72:  {'gcc':4,'apple-clang': 10,'clang': 10,'msvc': 10,'mingw': 10}, #"cx16",
+    73:  {'gcc':4,'apple-clang': 10,'clang': 10,'msvc': 10,'mingw': 10}, #"mwaitx",
+    74:  {'gcc':4,'apple-clang': 10,'clang': 10,'msvc': 10,'mingw': 10}, #"clzero",
+    75:  {'gcc':4,'apple-clang': 10,'clang': 10,'msvc': 10,'mingw': 10}, #"mmxext",
+    76:  {'gcc':4,'apple-clang': 10,'clang': 10,'msvc': 10,'mingw': 10}, #"prefetchwt1",
+}
+
+def get_available_extensions():
     data = []
-    for _, f in instructions_map.items():
+    for _, f in extensions_map.items():
         # data.append(str(int(f())))
         data.append(int(f()))
     return data
@@ -1480,35 +1564,35 @@ def _to_ints_bin(data):
     return res
 
 def _pad_right_array(data):
-    if len(data) >= len(instructions_map): return data
-    n = len(instructions_map) - len(data)
+    if len(data) >= len(extensions_map): return data
+    n = len(extensions_map) - len(data)
     for i in range(n):
         data.append(int(0))
     return data
 
-def encode_instructions(insts):
-    insts = _to_chars_bin(insts)
-    insts_str = ''.join(reversed(insts))
-    insts_num = int(insts_str, 2)
-    insts_num_b58 = base58.flex_encode(insts_num)
-    return insts_num_b58
+def encode_extensions(exts):
+    exts = _to_chars_bin(exts)
+    exts_str = ''.join(reversed(exts))
+    exts_num = int(exts_str, 2)
+    exts_num_b58 = base58.flex_encode(exts_num)
+    return exts_num_b58
 
-def decode_instructions(architecture_id):
-    insts_num = base58.flex_decode(architecture_id)
-    res = "{0:b}".format(insts_num)
-    res = res.zfill(len(instructions_map))
+def decode_extensions(architecture_id):
+    exts_num = base58.flex_decode(architecture_id)
+    res = "{0:b}".format(exts_num)
+    res = res.zfill(len(extensions_map))
     return _to_ints_bin([*reversed(res)])
     # return [*reversed(res)]
 
 def get_architecture_id():
-    insts = get_available_instructions()
-    architecture_id = encode_instructions(insts)
+    exts = get_available_extensions()
+    architecture_id = encode_extensions(exts)
     return architecture_id
 
 def print_available_extensions(exts):
     for i in range(len(exts)):
         if (exts[i] == 1):
-            print("your computer supports " + instructions_names[i])
+            print("your computer supports " + extensions_names[i])
 
 # ----------------------------------------------------------------------
 
@@ -1638,28 +1722,8 @@ def support_rdtscp():
     _, _, _, d = cpuid.cpuid(0x80000001)
     return (d & (1 << 27)) != 0
 
-
-# # RTCounter returns the 64-bit time-stamp counter
-# # Uses the RDTSCP instruction. The value 0 is returned
-# # if the CPU does not support the instruction.
-# def RTCounter():
-# 	if not support_rdtscp():
-# 		return 0
-# 	a, _, _, d := rdtscpAsm()
-# 	return uint64(a) | (uint64(d) << 32)
-# }
-
-# # Ia32TscAux returns the IA32_TSC_AUX part of the RDTSCP.
-# # This variable is OS dependent, but on Linux contains information
-# # about the current cpu/core the code is running on.
-# # If the RDTSCP instruction isn't supported on the CPU, the value 0 is returned.
-# func (c CPUInfo) Ia32TscAux() uint32 {
-# 	if !c.RDTSCP() {
-# 		return 0
-# 	}
-# 	_, _, ecx, _ := rdtscpAsm()
-# 	return ecx
-# }
+#TODO(fernando): implementar RTCounter() del proyecto Golang
+#TODO(fernando): implementar Ia32TscAux() del proyecto Golang
 
 # LogicalCPU will return the Logical CPU the code is currently executing on.
 # This is likely to change when the OS re-schedules the running thread
@@ -1692,6 +1756,125 @@ def Hyperthreading():
 
 # ----------------------------------------------------------------------
 
+def is_superset_of(a, b):
+    n = min(len(a), len(b))
+
+    for i in range(n):
+        if a[i] < b[i]: return False
+
+    for i in range(n, len(b)):
+        if b[i] == 1: return False
+
+    return True
+
+def test_is_superset_of():
+    assert(is_superset_of([], []))
+    assert(is_superset_of([0], []))
+    assert(is_superset_of([], [0]))
+    assert(is_superset_of([0], [0]))
+    assert(is_superset_of([0,0], [0,0]))
+    assert(is_superset_of([0], [0,0]))
+    assert(is_superset_of([0,0], [0]))
+    assert(is_superset_of([1], [1]))
+    assert(is_superset_of([1], [0]))
+    assert(is_superset_of([1], []))
+
+    assert(not is_superset_of([0], [1]))
+    assert(not is_superset_of([], [1]))
+
+test_is_superset_of()
+# ----------------------------------------------------------------------
+
+# ----------------------------------------------------------------------
+
+
+# intel_marchs = {
+#     'i386':           [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,?,?,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,?,?,?,?,?,?,?],
+#     'i486':           [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,?,?,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,?,?,?,?,?,?,?],
+#     'i586':           [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,?,?,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,?,?,?,?,?,?,?],
+#     'lakemont':       [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,?,?,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,?,?,?,?,?,?,?],
+#     'pentium-mmx':    [0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,?,?,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,?,?,?,?,?,?,?],
+#     'pentiumpro':     [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,?,?,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,?,?,?,?,?,?,?],
+#     'i686':           [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,?,?,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,?,?,?,?,?,?,?],
+#     'pentium2':       [0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,?,?,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,?,?,?,?,?,?,?],
+#     'pentium3':       [0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,?,?,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,?,?,?,?,?,?,?],
+#     'pentium-m':      [0,0,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,?,?,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,?,?,?,?,?,?,?],
+#     'pentium4':       [0,0,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,?,?,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,?,?,?,?,?,?,?],
+#     'prescott':       [0,0,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,?,?,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,?,?,?,?,?,?,?],
+#     'x86-64':         [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,?,?,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,?,?,?,?,?,?,?],
+#     'nocona':         [1,0,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,?,?,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,?,?,?,?,?,?,?],
+#     'core2':          [1,0,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,?,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,?,?,?,?,?,?,?],
+#     'nehalem':        [1,0,1,1,1,1,1,1,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,?,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,?,?,?,?,?,?,?],
+#     'westmere':       [1,0,1,1,1,1,1,1,1,0,1,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,?,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,?,?,?,?,?,?,?],
+#     'sandybridge':    [1,0,1,1,1,1,1,1,1,0,1,0,0,1,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,?,?,?,?,?,?,?],
+#     'ivybridge':      [1,0,1,1,1,1,1,1,1,0,1,0,0,1,0,1,1,1,1,0,0,0,0,0,0,1,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,?,?,?,?,?,?,?],
+#     'haswell':        [1,1,1,1,1,1,1,1,1,0,1,1,0,1,1,1,1,1,1,1,0,1,1,1,0,1,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,?,?,?,?],
+#     'broadwell':      [1,1,1,1,1,1,1,1,1,0,1,1,0,1,1,1,1,1,1,1,0,1,1,1,0,1,1,1,1,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,?,?,1,?,?,?,?],
+#     'skylake':        [1,1,1,1,1,1,1,1,1,0,1,1,0,1,1,1,1,1,1,1,0,1,1,1,0,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,?,?,?,?],
+#     'bonnell':        [1,1,1,1,1,1,1,0,0,0,0,?,0,0,0,0,0,0,0,0,0,?,0,0,0,0,0,0,0,0,?,?,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,?,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,?,?,?,?,?,?,?,?],
+#     'silvermont':     [1,1,1,1,1,1,1,1,1,0,1,?,0,0,0,1,1,0,1,0,0,?,0,0,0,0,0,0,0,0,?,?,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,?,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,?,?,?,?,?,?,?,?],
+#     'goldmont':       [1,1,1,1,1,1,1,1,1,0,1,?,0,0,0,1,1,1,1,0,0,?,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,?,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,?,?,?,?,?,?,?,?],
+#     'goldmont-plus':  [1,1,1,1,1,1,1,1,1,0,1,?,0,0,0,1,1,1,1,0,0,?,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,?,0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,?,?,?,?,?,?,?,?],
+#     'tremont':        [1,1,1,1,1,1,1,1,1,0,1,?,0,0,0,1,1,1,1,0,0,?,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,?,0,0,1,1,1,1,1,1,0,1,0,0,0,0,0,0,0,0,0,?,?,?,?,?,?,?,?],
+#     'knl':            [1,1,1,1,1,1,1,1,1,0,1,1,0,1,1,1,1,1,1,1,0,1,1,1,0,1,1,1,1,0,0,0,0,0,1,1,1,0,0,0,1,0,0,0,0,0,0,0,0,?,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,?,?,?,?,?,?,?],
+#     'knm':            [1,1,1,1,1,1,1,1,1,0,1,1,0,1,1,1,1,1,1,1,0,1,1,1,0,1,1,1,1,0,0,0,0,0,1,1,1,0,0,0,1,1,1,0,0,0,1,0,0,?,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,?,?,?,?,?,?,?],
+#     'skylake-avx512': [1,1,1,1,1,1,1,1,1,0,1,1,1,1,1,1,1,1,1,1,0,1,1,1,0,1,1,1,1,1,1,1,1,1,1,0,0,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,?,?,1,?,?,?,?],
+#     'cannonlake':     [1,1,1,1,1,1,1,1,1,0,1,1,1,1,1,1,1,1,1,1,0,1,1,1,0,1,1,1,1,1,1,1,1,1,1,0,0,1,1,1,1,0,0,1,1,0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,?,?,?,?,?,?,?],
+#     'icelake-client': [1,1,1,1,1,1,1,1,1,0,1,1,1,1,1,1,1,1,1,1,0,1,1,1,0,1,1,1,1,1,1,1,1,1,1,0,0,1,1,1,1,0,0,1,1,1,1,1,1,0,0,1,1,0,1,0,1,0,1,0,1,1,0,0,0,0,0,0,0,1,?,?,1,?,?,?,?],
+#     'icelake-server': [1,1,1,1,1,1,1,1,1,0,1,1,1,1,1,1,1,1,1,1,0,1,1,1,0,1,1,1,1,1,1,1,1,1,1,0,0,1,1,1,1,0,0,1,1,1,1,1,1,0,0,1,1,0,1,0,1,0,1,0,1,1,1,1,0,0,0,0,0,1,?,?,1,?,?,?,?],
+#     'cascadelake':    [1,1,1,1,1,1,1,1,1,0,1,1,1,1,1,1,1,1,1,1,0,1,1,1,0,1,1,1,1,1,1,1,1,1,1,0,0,1,1,1,1,0,0,0,0,0,0,0,1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,?,?,?,?,?,?,?],
+#     'cooperlake':     [1,1,1,1,1,1,1,1,1,0,1,1,1,1,1,1,1,1,1,1,0,1,1,1,0,1,1,1,1,1,1,1,1,1,1,0,0,1,1,1,1,0,0,0,0,0,0,0,1,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,?,?,?,?,?,?,?],
+#     'tigerlake':      [1,1,1,1,1,1,1,1,1,0,1,1,1,1,1,1,1,1,1,1,0,1,1,1,0,1,1,1,1,1,1,1,1,1,1,0,0,1,1,1,1,0,0,1,1,1,1,1,1,0,1,1,1,0,1,0,1,0,1,0,1,1,1,1,1,1,0,0,0,1,?,?,1,?,?,?,?],
+#     'alderlake':      [],
+#     'meteor_lake':    [],
+# }
+
+
+intel_marchs = {
+    'i386':           [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    'i486':           [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    'i586':           [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    'lakemont':       [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    'pentium-mmx':    [0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    'pentiumpro':     [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    'i686':           [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    'pentium2':       [0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    'pentium3':       [0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    'pentium-m':      [0,0,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    'pentium4':       [0,0,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    'prescott':       [0,0,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    'x86-64':         [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    'nocona':         [1,0,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    'core2':          [1,0,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    'nehalem':        [1,0,1,1,1,1,1,1,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    'westmere':       [1,0,1,1,1,1,1,1,1,0,1,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    'sandybridge':    [1,0,1,1,1,1,1,1,1,0,1,0,0,1,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    'ivybridge':      [1,0,1,1,1,1,1,1,1,0,1,0,0,1,0,1,1,1,1,0,0,0,0,0,0,1,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    'haswell':        [1,1,1,1,1,1,1,1,1,0,1,1,0,1,1,1,1,1,1,1,0,1,1,1,0,1,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0],
+    'broadwell':      [1,1,1,1,1,1,1,1,1,0,1,1,0,1,1,1,1,1,1,1,0,1,1,1,0,1,1,1,1,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,0,0,0,0],
+    'skylake':        [1,1,1,1,1,1,1,1,1,0,1,1,0,1,1,1,1,1,1,1,0,1,1,1,0,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,0,0,0,0],
+    'bonnell':        [1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    'silvermont':     [1,1,1,1,1,1,1,1,1,0,1,0,0,0,0,1,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    'goldmont':       [1,1,1,1,1,1,1,1,1,0,1,0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    'goldmont-plus':  [1,1,1,1,1,1,1,1,1,0,1,0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    'tremont':        [1,1,1,1,1,1,1,1,1,0,1,0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    'knl':            [1,1,1,1,1,1,1,1,1,0,1,1,0,1,1,1,1,1,1,1,0,1,1,1,0,1,1,1,1,0,0,0,0,0,1,1,1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0],
+    'knm':            [1,1,1,1,1,1,1,1,1,0,1,1,0,1,1,1,1,1,1,1,0,1,1,1,0,1,1,1,1,0,0,0,0,0,1,1,1,0,0,0,1,1,1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0],
+    'skylake-avx512': [1,1,1,1,1,1,1,1,1,0,1,1,1,1,1,1,1,1,1,1,0,1,1,1,0,1,1,1,1,1,1,1,1,1,1,0,0,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,0,0,0,0],
+    'cannonlake':     [1,1,1,1,1,1,1,1,1,0,1,1,1,1,1,1,1,1,1,1,0,1,1,1,0,1,1,1,1,1,1,1,1,1,1,0,0,1,1,1,1,0,0,1,1,0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0],
+    'icelake-client': [1,1,1,1,1,1,1,1,1,0,1,1,1,1,1,1,1,1,1,1,0,1,1,1,0,1,1,1,1,1,1,1,1,1,1,0,0,1,1,1,1,0,0,1,1,1,1,1,1,0,0,1,1,0,1,0,1,0,1,0,1,1,0,0,0,0,0,0,0,1,0,0,1,0,0,0,0],
+    'icelake-server': [1,1,1,1,1,1,1,1,1,0,1,1,1,1,1,1,1,1,1,1,0,1,1,1,0,1,1,1,1,1,1,1,1,1,1,0,0,1,1,1,1,0,0,1,1,1,1,1,1,0,0,1,1,0,1,0,1,0,1,0,1,1,1,1,0,0,0,0,0,1,0,0,1,0,0,0,0],
+    'cascadelake':    [1,1,1,1,1,1,1,1,1,0,1,1,1,1,1,1,1,1,1,1,0,1,1,1,0,1,1,1,1,1,1,1,1,1,1,0,0,1,1,1,1,0,0,0,0,0,0,0,1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0],
+    'cooperlake':     [1,1,1,1,1,1,1,1,1,0,1,1,1,1,1,1,1,1,1,1,0,1,1,1,0,1,1,1,1,1,1,1,1,1,1,0,0,1,1,1,1,0,0,0,0,0,0,0,1,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,0,0],
+    'tigerlake':      [1,1,1,1,1,1,1,1,1,0,1,1,1,1,1,1,1,1,1,1,0,1,1,1,0,1,1,1,1,1,1,1,1,1,1,0,0,1,1,1,1,0,0,1,1,1,1,1,1,0,1,1,1,0,1,0,1,0,1,0,1,1,1,1,1,1,0,0,0,1,0,0,1,0,0,0,0],
+    'alderlake':      [],
+    'meteor_lake':    [],
+}
+
+
+# ----------------------------------------------------------------------------------
+
+
 print("vendorID: %s" % vendorID())
 print("brandName: %s" % brandName())
 print("cacheLine: %s" % cacheLine())
@@ -1703,37 +1886,59 @@ print("LogicalCPU: %s" % LogicalCPU())
 print("VM: %s" % VM())
 print("Hyperthreading: %s" % Hyperthreading())
 
-
-
 print("CPUID Microarchitecture : %s%s" % cpuid.cpu_microarchitecture())
 architecture_id = get_architecture_id()
 print(architecture_id)
 
 
-# According XLS
-haswell = [1,1,1,1,1,1,1,1,1,0,1,1,0,1,1,1,1,1,1,1,0,1,1,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0]
-haswell = _pad_right_array(haswell)
-# print(haswell)
+# ----------------------------------------------------------------------------------
 
-# print_available_extensions(haswell)
+# architecture_id = encode_extensions(exts)
 
-insts = get_available_instructions()
-print(insts)
-print_available_extensions(insts)
+for name, exts in intel_marchs.items():
+    if len(exts) > 0:
+        print('%s: %s' % (name, encode_extensions(exts)))
 
-print("---------------------------------------------")
-print(support_avx_os())
-print(support_avx2_cpu())
-print("---------------------------------------------")
+# ----------------------------------------------------------------------------------
 
 
-for i in range(len(insts)):
-    if insts[i] != haswell[i]:
-        print("difference in pos " + str(i) + "    " + instructions_names[i])
-        if insts[i] == 0:
-            print("XLS supports    " + instructions_names[i])
-        else:
-            print("CPU supports    " + instructions_names[i])
+# # According XLS
+# haswell = [1,1,1,1,1,1,1,1,1,0,1,1,0,1,1,1,1,1,1,1,0,1,1,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0]
+# haswell = _pad_right_array(haswell)
+
+# skylake = [1,1,1,1,1,1,1,1,1,0,1,1,0,1,1,1,1,1,1,1,0,1,1,1,0,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,0,0,0,0]
+# skylake = _pad_right_array(skylake)
+
+# comparable_arch = skylake
+
+# if is_superset_of(skylake, haswell):
+#     print("Skylake is a superset of Haswell")
+# else:
+#     print("Skylake is NOT a superset of Haswell")
+
+
+
+# # print(comparable_arch)
+
+# # print_available_extensions(comparable_arch)
+
+# exts = get_available_extensions()
+# print(exts)
+# print_available_extensions(exts)
+
+# print("---------------------------------------------")
+# print(support_avx_os())
+# print(support_avx2_cpu())
+# print("---------------------------------------------")
+
+
+# for i in range(len(exts)):
+#     if exts[i] != comparable_arch[i]:
+#         print("difference in pos " + str(i) + "    " + extensions_names[i])
+#         if exts[i] == 0:
+#             print("XLS supports    " + extensions_names[i])
+#         else:
+#             print("CPU supports    " + extensions_names[i])
 
 
 
@@ -1745,9 +1950,9 @@ for i in range(len(insts)):
 # calculated  [1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 
 
-# architecture_id = encode_instructions(insts)
+# architecture_id = encode_extensions(exts)
 # print(architecture_id)
-print(decode_instructions(architecture_id))
+# print(decode_extensions(architecture_id))
 
 
 
@@ -1776,13 +1981,13 @@ print(decode_instructions(architecture_id))
 # print("".join(data))
 
 
-# print(instructions[0]())
-# print(instructions_map[1]())
-# print(instructions_map[2]())
-# print(instructions_map[9]())
-# print(instructions_map[13]())
-# # print(instructions_map[75]())
-# print(instructions_map[76]())
+# print(extensions[0]())
+# print(extensions_map[1]())
+# print(extensions_map[2]())
+# print(extensions_map[9]())
+# print(extensions_map[13]())
+# # print(extensions_map[75]())
+# print(extensions_map[76]())
 
 
 
