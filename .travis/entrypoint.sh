@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Copyright (c) 2017-2020 Fernando Pelliccioni
+# Copyright (c) 2017-2021 Fernando Pelliccioni
 #
 set -e
 set -x
