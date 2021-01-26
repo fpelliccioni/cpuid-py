@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 # 
-# Copyright (c) 2017-2020 Fernando Pelliccioni
+# Copyright (c) 2017-2021 Fernando Pelliccioni
 # 
 
 from setuptools import setup
@@ -9,15 +9,15 @@ from setuptools import setup
 __title__ = "cpuid"
 __summary__ = "cpuid Pythonic API"
 __uri__ = "https://github.com/fpelliccioni/cpuid-py"
-__version__ = "0.0.9"
+__version__ = "0.0.10"
 __author__ = "Fernando Pelliccioni"
 __email__ = "fpelliccioni@gmail.com"
 __license__ = "MIT"
-__copyright__ = "Copyright (c) 2017-2020 Fernando Pelliccioni"
+__copyright__ = "Copyright (c) 2017-2021 Fernando Pelliccioni"
 
 
 install_requires = [
-    "cpuid-native >= 0.0.6",
+    "cpuid-native >= 0.0.7",
 ]
 
 setup(
@@ -59,6 +59,7 @@ setup(
         "Programming Language :: Python :: 3.5",
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: Implementation :: CPython",
     ],    
 
