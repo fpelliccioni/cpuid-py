@@ -209,6 +209,10 @@ def _intel(family, model):
         elif model == 0x5f:
             cpu_64bit = 1
             modelstr = "goldmont"   # Goldmont */
+
+        # kabylake:  0806e9h, 0806eah, 0906e9h
+        # cofeelake: 0906eah, 0906ebh
+                    #  0x906ED
         elif model == 0x8e:
             cpu_64bit = 1
             cpu_avx=1
@@ -217,6 +221,7 @@ def _intel(family, model):
             cpu_64bit = 1
             cpu_avx=1
             modelstr = "kabylake"   # Kabylake desktop */
+        
         else:
             cpu_64bit = 1
             modelstr = "nehalem"    # default */
@@ -332,8 +337,26 @@ def _workaround_skylake_cpuid_bug():
 def cpu_microarchitecture():
 
     fms, b, c, d = cpuid(1)
+
+    aaa = fms >> 8
+    bbb = fms >> 20
+    ccc = fms >> 4
+    ddd = fms >> 12
+
+
     family = ((fms >> 8) & 0xf) + ((fms >> 20) & 0xff)
-    model = ((fms >> 4) & 0xf) + ((fms >> 12) & 0xf0)
+    model  = ((fms >> 4) & 0xf) + ((fms >> 12) & 0xf0)
+
+    # fms = 591597          0x906ED0
+    # b =   168822784       0xA100800
+    # c =   2147154879      0x7FFAFBBF
+    # d =   3219913727      0xBFEBFBFF
+
+    # 0x000906ED       = 00000000 00001001 00000110 11101101
+    # 0x000906ED >> 8  = 00000000 00000000 00001001 00000110 = 0x00000906
+    # 0x000906ED >> 20 = 00000000 00000000 00000000 00000000 = 0x0
+    # 0x000906ED >> 4  = 00000000 00000000 10010000 01101110 = 0x0000906E
+    # 0x000906ED >> 12 = 00000000 00000000 00000000 10010000 = 0x00000090
 
     vendor_string = cpu_vendor()
     if vendor_string == "GenuineIntel":
@@ -341,7 +364,7 @@ def cpu_microarchitecture():
     elif vendor_string == "AuthenticAMD":
         modelstr, cpu_64bit, cpu_avx = _amd(family, model)
     # elif vendor_string == "CyrixInstead":
-    #     #TODO(bitprim): Should recognize Cyrix' processors too.
+    #     #TODO(fernando): Should recognize Cyrix' processors too.
     elif vendor_string == "CentaurHauls":
         modelstr, cpu_64bit, cpu_avx = _centaur_hauls(family, model)
 

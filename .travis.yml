@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2017-2021 Fernando Pelliccioni
+# Copyright (c) 2017-2023 Fernando Pelliccioni
 #
 
 branches:
@@ -64,7 +64,7 @@ install:
 
       if which pyenv > /dev/null; then
           eval "$(pyenv init -)"
-          eval "$(pyenv virtualenv-init -)" 
+          eval "$(pyenv virtualenv-init -)"
       fi
 
       if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then
@@ -122,19 +122,19 @@ script:
       if [[ "${TRAVIS_BRANCH}" == "dev" ]]; then
         # Just for dev branch
         pip install --upgrade --index-url https://test.pypi.org/pypi/ cpuid-native
-      fi    
+      fi
 
       # pip install -v -e .
       pip install -e .
 
       # if [[ "${UNIT_TESTS}" == "true" ]]; then
       #   python test/test_chain.py
-      # fi    
+      # fi
 
       if [[ "${UPLOAD_PKG}" == "true" ]]; then
         python setup.py sdist
         python setup.py bdist_wheel --universal
-      fi    
+      fi
     fi
 
   - |
@@ -146,12 +146,12 @@ script:
         # For Testing Release
         # twine upload -r test -u ${PYPI_USER_NAME} -p ${PYPI_PASSWORD} dist/* || true
         twine upload -u ${PYPI_USER_NAME} -p ${PYPI_PASSWORD} --repository-url https://test.pypi.org/legacy/ dist/*  || true
-      fi    
-    fi    
+      fi
+    fi
 
 
 notifications:
-  email: 
+  email:
     - fpelliccioni@gmail.com
   webhooks:
     urls: https://webhooks.gitter.im/e/a19dd2b03bf676d2b622

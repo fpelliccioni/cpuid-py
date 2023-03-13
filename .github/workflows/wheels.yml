@@ -1,0 +1,162 @@
+name: Build and upload to PyPI
+
+on:
+  push:
+  pull_request:
+  release:
+    types:
+      - published
+
+jobs:
+  build_wheels:
+    name: Build wheels for cp${{ matrix.python }}-${{ matrix.platform_id }}-${{ matrix.manylinux_image }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # # Windows
+          # - os: windows-2016
+          #   python: 37
+          #   bitness: 64
+          #   platform_id: win_amd64
+          # - os: windows-2016
+          #   python: 38
+          #   bitness: 64
+          #   platform_id: win_amd64
+          # - os: windows-2016
+          #   python: 39
+          #   bitness: 64
+          #   platform_id: win_amd64
+          # - os: windows-2016
+          #   python: 310
+          #   bitness: 64
+          #   platform_id: win_amd64
+          # - os: windows-2016
+          #   python: 311
+          #   bitness: 64
+          #   platform_id: win_amd64
+
+          # Linux
+          - os: ubuntu-latest
+            python: 37
+            python_version: "3.7"
+            bitness: 64
+            platform_id: manylinux_x86_64
+            manylinux_image: manylinux2014
+          - os: ubuntu-latest
+            python: 38
+            python_version: "3.8"
+            bitness: 64
+            platform_id: manylinux_x86_64
+            manylinux_image: manylinux2014
+          - os: ubuntu-latest
+            python: 39
+            python_version: "3.9"
+            bitness: 64
+            platform_id: manylinux_x86_64
+            manylinux_image: manylinux2014
+          - os: ubuntu-latest
+            python: 310
+            python_version: "3.10"
+            bitness: 64
+            platform_id: manylinux_x86_64
+            manylinux_image: manylinux2014
+          - os: ubuntu-latest
+            python: 311
+            python_version: "3.11"
+            bitness: 64
+            platform_id: manylinux_x86_64
+            manylinux_image: manylinux2014
+
+          # MacOS x86_64
+          - os: macos-latest
+            bitness: 64
+            python: 37
+            python_version: "3.7"
+            platform_id: macosx_x86_64
+          - os: macos-latest
+            bitness: 64
+            python: 38
+            python_version: "3.8"
+            platform_id: macosx_x86_64
+          - os: macos-latest
+            bitness: 64
+            python: 39
+            python_version: "3.9"
+            platform_id: macosx_x86_64
+          - os: macos-latest
+            bitness: 64
+            python: 310
+            python_version: "3.10"
+            platform_id: macosx_x86_64
+          - os: macos-latest
+            bitness: 64
+            python: 311
+            python_version: "3.11"
+            platform_id: macosx_x86_64
+
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        name: Install Python
+        with:
+          # python-version: '3.9'
+          python-version: ${{ matrix.python_version }}
+
+      # - name: Build wheels
+      #   uses: pypa/cibuildwheel@v2.12.1
+      #   env:
+      #     CIBW_BUILD: cp${{ matrix.python }}-${{ matrix.platform_id }}
+      #     CIBW_ARCHS: all
+
+      - name: Prepare Env
+        run: |
+          # pip install --upgrade pip
+          pip install --upgrade wheel
+          pip install --upgrade twine
+          pip install --upgrade setuptools
+
+      - name: Prepare Env
+        run: |
+          pip install -e .
+          python setup.py sdist
+          python bdist_wheel --universal
+
+      - uses: actions/upload-artifact@v3
+        with:
+          path: ./wheelhouse/*.whl
+
+
+  build_sdist:
+    name: Build source distribution
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/setup-python@v4
+        name: Install Python
+        with:
+          python-version: '3.9'
+
+      - name: Build sdist
+        run: pip install setuptools_scm && python setup.py sdist
+
+      - uses: actions/upload-artifact@v3
+        with:
+          path: dist/*.tar.gz
+
+  upload_pypi:
+    needs: [build_wheels, build_sdist]
+    runs-on: ubuntu-latest
+    # if: github.event_name == 'release' && github.event.action == 'published'
+    steps:
+      - uses: actions/download-artifact@v3
+        with:
+          name: artifact
+          path: dist
+
+      - uses: pypa/gh-action-pypi-publish@v1.7.1
+        with:
+          # user: __token__
+          password: ${{ secrets.PYPI_API_TOKEN }}

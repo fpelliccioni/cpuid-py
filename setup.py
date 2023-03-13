@@ -1,23 +1,23 @@
 #!/usr/bin/env python
 
-# 
-# Copyright (c) 2017-2021 Fernando Pelliccioni
-# 
+#
+# Copyright (c) 2017-2023 Fernando Pelliccioni
+#
 
 from setuptools import setup
 
 __title__ = "cpuid"
 __summary__ = "cpuid Pythonic API"
 __uri__ = "https://github.com/fpelliccioni/cpuid-py"
-__version__ = "0.0.10"
+__version__ = "0.0.11"
 __author__ = "Fernando Pelliccioni"
 __email__ = "fpelliccioni@gmail.com"
 __license__ = "MIT"
-__copyright__ = "Copyright (c) 2017-2021 Fernando Pelliccioni"
+__copyright__ = "Copyright (c) 2017-2023 Fernando Pelliccioni"
 
 
 install_requires = [
-    "cpuid-native >= 0.0.7",
+    "cpuid-native >= 0.0.8",
 ]
 
 setup(
@@ -60,8 +60,10 @@ setup(
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: Implementation :: CPython",
-    ],    
+    ],
 
     # What does your project relate to?
     keywords='cpuid intel amd x86 cpu',
@@ -70,7 +72,7 @@ setup(
 
     install_requires=install_requires,
     # setup_requires=setup_requires,
-    
+
 
     dependency_links=[
         'https://testpypi.python.org/pypi',
