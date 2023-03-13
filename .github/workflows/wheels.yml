@@ -121,7 +121,7 @@ jobs:
         run: |
           pip install -e .
           python setup.py sdist
-          python bdist_wheel --universal
+          python setup.py bdist_wheel --universal
 
       - uses: actions/upload-artifact@v3
         with:
