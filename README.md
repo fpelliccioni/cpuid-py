@@ -8,6 +8,8 @@
 
 A user-friendly Python library that automatically identifies your CPU vendor, model, microarchitecture, and supported instruction sets. Built on top of [cpuid-native](https://github.com/fpelliccioni/cpuid-py-native) for direct hardware access.
 
+> **⚠️ x86/x64 ONLY**: This library depends on the CPUID instruction which is **exclusive to x86/x64 processors**. It will **NOT work on ARM** processors (Apple Silicon M1/M2/M3, Raspberry Pi, AWS Graviton, etc.). Installation or execution on ARM will fail because the underlying `cpuid-native` extension cannot be built on ARM architectures.
+
 ## Features
 
 - **Automatic CPU identification** - Detects Intel, AMD, and VIA processors
