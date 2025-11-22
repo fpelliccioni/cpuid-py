@@ -9,90 +9,25 @@ on:
 
 jobs:
   build_wheels:
-    name: Build wheels for ${{ matrix.os }}-${{ matrix.python_version }}
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          # # Windows
-          # - os: windows-2016
-          #   python: 37
-          #   bitness: 64
-          #   platform_id: win_amd64
-          # - os: windows-2016
-          #   python: 38
-          #   bitness: 64
-          #   platform_id: win_amd64
-          # - os: windows-2016
-          #   python: 39
-          #   bitness: 64
-          #   platform_id: win_amd64
-          # - os: windows-2016
-          #   python: 310
-          #   bitness: 64
-          #   platform_id: win_amd64
-          # - os: windows-2016
-          #   python: 311
-          #   bitness: 64
-          #   platform_id: win_amd64
-
-          # Linux
-          - os: ubuntu-latest
-            python_version: "3.7"
-          - os: ubuntu-latest
-            python_version: "3.8"
-          - os: ubuntu-latest
-            python_version: "3.9"
-          - os: ubuntu-latest
-            python_version: "3.10"
-          - os: ubuntu-latest
-            python_version: "3.11"
-          - os: ubuntu-latest
-            python_version: "3.12"
-          - os: ubuntu-latest
-            python_version: "3.13"
-
-          # MacOS x86_64
-          - os: macos-latest
-            python_version: "3.7"
-          - os: macos-latest
-            python_version: "3.8"
-          - os: macos-latest
-            python_version: "3.9"
-          - os: macos-latest
-            python_version: "3.10"
-          - os: macos-latest
-            python_version: "3.11"
-          - os: macos-latest
-            python_version: "3.12"
-          - os: macos-latest
-            python_version: "3.13"
-
+    name: Build pure Python wheel
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-python@v5
         name: Install Python
         with:
-          python-version: ${{ matrix.python_version }}
+          python-version: '3.12'
 
-      - name: Prepare Env
+      - name: Build wheel
         run: |
-          # pip install --upgrade pip
-          pip install --upgrade wheel
-          pip install --upgrade twine
-          pip install --upgrade setuptools
-
-      - name: Prepare Env
-        run: |
-          pip install -e .
-          python setup.py sdist
-          python setup.py bdist_wheel --universal
+          pip install --upgrade build
+          python -m build --wheel
 
       - uses: actions/upload-artifact@v4
         with:
-          name: wheels-${{ matrix.os }}-${{ matrix.python_version }}
-          path: ./wheelhouse/*.whl
+          name: wheel
+          path: dist/*.whl
 
 
   build_sdist:

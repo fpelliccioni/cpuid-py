@@ -9,7 +9,7 @@ from setuptools import setup
 __title__ = "cpuid"
 __summary__ = "cpuid Pythonic API"
 __uri__ = "https://github.com/fpelliccioni/cpuid-py"
-__version__ = "0.0.12"
+__version__ = "0.1.1"
 __author__ = "Fernando Pelliccioni"
 __email__ = "fpelliccioni@gmail.com"
 __license__ = "MIT"
@@ -17,17 +17,18 @@ __copyright__ = "Copyright (c) 2017-2025 Fernando Pelliccioni"
 
 
 install_requires = [
-    "cpuid-native >= 0.0.9",
+    "cpuid-native >= 0.1.1",
 ]
+
+# Read README for long description
+with open("README.md", "r", encoding="utf-8") as fh:
+    long_description = fh.read()
 
 setup(
     name = __title__,
     version = __version__,
     description = __summary__,
-    # long_description=open("./README.rst").read(),
-    # long_description_content_type="text/x-rst",
-
-    long_description=open("./README.md").read(),
+    long_description=long_description,
     long_description_content_type="text/markdown",
 
     license = __license__,
